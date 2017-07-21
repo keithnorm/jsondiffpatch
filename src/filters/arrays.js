@@ -270,11 +270,29 @@ var patchFilter = function nestedPatchFilter(context) {
         }
       } else {
         if (delta[index].length === 1) {
-          // added item at new array
-          toInsert.push({
-            index: parseInt(index, 10),
-            value: delta[index][0]
-          });
+
+          // when getting instructions to add an item to an array, first check if existing item at index is equal
+          // if so, do an "upsert" instead
+          var objHashFunc = context.options.objectHash;
+          var hash1 =  objHashFunc ? context.options.objectHash(context.left[index] || {}) : context.left[index];
+          var hash2 = objHashFunc ? context.options.objectHash(delta[index][0]) : delta[index][0];
+
+          if (hash1 === hash2) {
+            var mod = {};
+            for (var key in delta[index][0]) {
+              mod[key] = [delta[index][0][key]];
+            }
+            toModify.push({
+              index: parseInt(index, 10),
+              delta: mod
+            });
+          } else {
+            // added item at new array
+            toInsert.push({
+              index: parseInt(index, 10),
+              value: delta[index][0]
+            });
+          }
         } else {
           // modified item at new array
           toModify.push({
