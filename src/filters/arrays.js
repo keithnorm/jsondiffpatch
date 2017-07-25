@@ -277,7 +277,7 @@ var patchFilter = function nestedPatchFilter(context) {
           var hash1 =  objHashFunc ? context.options.objectHash(context.left[index] || {}) : context.left[index];
           var hash2 = objHashFunc ? context.options.objectHash(delta[index][0]) : delta[index][0];
 
-          if (hash1 === hash2) {
+          if ((hash1 && hash2) && (hash1 === hash2)) {
             var mod = {};
             for (var key in delta[index][0]) {
               mod[key] = [delta[index][0][key]];
